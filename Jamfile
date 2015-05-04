@@ -1,0 +1,77 @@
+import  os ;
+
+#local  YUNYOU_SPACE = [ os.environ YUNYOU_SPACE ] ;
+#path-constant  PRJ_ROOT  : .  ;
+
+path-constant SPACE :  ../ ;
+path-constant CLIBS :  $(SPACE)/libs  ;
+
+
+
+
+
+
+rule boost_lib ( name  )
+{
+
+    local file_path =  $(SPACE)/sun/libs/gcc_4.12 ;
+    local prefix            = lib  ;
+    local debug_postfix     = ""  ;
+    local release_postfix   = ""  ;
+    local OS = [ os.environ OS ] ;
+    local WIN = "Windows_NT"  ;
+    local ver = 1.51.0 ;
+
+    if $(OS) = $(WIN)
+    {
+         prefix    =  "" ; 
+         file_path =  $(SPACE)/sun/libs/msvc_11   ;
+         debug_postfix   =  -vc110-mt-gd-1_51 ;
+         release_postfix   =  -vc110-mt-1_51 ;
+         lib $(name) : : <name>lib$(name)$(debug_postfix)  <search>$(file_path)  <variant>debug ;
+         lib $(name) : : <name>lib$(name)$(release_postfix)  <search>$(file_path)  <variant>release ;
+   }
+   else
+   {
+      #lib $(name) : : <file>$(file_path)/lib$(name).a ;
+       lib $(name) : : <file>$(file_path)/lib$(name).so.$(ver) ;
+   }
+}
+
+rule  other_lib ( name : unix_debug_file *  : unix_release_file * : win_debug_file * : win_release_file * )
+{
+
+    local file_path =  /$(SPACE)/libs/gcc_4.12 ;
+    local debug_file     = $(unix_debug_file)  ;
+    local release_file   = $(unix_release_file)  ;
+    local OS = [ os.environ OS ] ;
+    local WIN = "Windows_NT"  ;
+
+    if $(OS) = $(WIN)
+    {
+         file_path =  /$(SPACE)/sun/libs/msvc_11   ;
+	 debug_file     = $(win_debug_file)  ;
+	 release_file   = $(win_release_file)  ;
+   }
+   lib $(name) : : <name>$(debug_file)  <search>$(file_path)  <variant>debug ;
+   lib $(name) : : <name>$(release_file)  <search>$(file_path)  <variant>release ;
+}
+
+
+boost_lib boost_date_time  ;
+boost_lib boost_filesystem ;
+boost_lib boost_iostreams  ; 
+boost_lib boost_system  ;
+boost_lib boost_thread  ; 
+boost_lib boost_python  ; 
+#boost_lib boost_zlib ;
+boost_lib boost_wserialization  ;
+boost_lib boost_serialization ;
+boost_lib boost_chrono  ;
+boost_lib boost_log ;
+boost_lib boost_unit_test_framework ;
+alias  boost_ut : boost_unit_test_framework ;
+other_lib curl   : libcurl.so    :   libcurl.so   : libcurl_imp : libcurld_imp ;
+
+
+
